@@ -11,7 +11,6 @@
 #include <sys_clock.h>
 #include <limits.h>
 
-//#include <802.15.4/cc2520.h>
 
 
 #ifdef CONFIG_SHARED_IRQ
@@ -36,7 +35,7 @@
 //#define GPIO_TRIGGER_PIN_1  8   //IO8
 //#define CONFIG_GPIO_INT_PIN_2   2		//IO10
 //#define GPIO_TRIGGER_PIN_2  	6   //IO7
-//#define SLEEPTICKS	USEC(25)
+
 #define SLEEPTIME  20
 #define SLEEPTICKS (SLEEPTIME * sys_clock_ticks_per_sec / 1000000)
 
@@ -53,15 +52,12 @@ uint32_t  tsc2;
 
 struct hcsr_dw_runtime {
 	device_sync_call_t	sync;
-	//struct semaphore lock;
 	int time;
 	
 	uint32_t per_dev_buffer;
 	char buffer[64];
-	//ruct ring_buf *Pring_buf;
 	uint32_t trigger_pin;
 	uint32_t echo_pin;
-	//spinlock_t m_Lock;
 	int ongoing;
 	struct gpio_callback gpio_cb;
 	struct nano_sem nanofibre;
@@ -92,7 +88,7 @@ void gpio_callback(struct device *port,
 	if(cb->pin_mask == BIT(CONFIG_GPIO_INT_PIN_1))
 		hcsr04_local = device_get_binding(CONFIG_HCSR04_DW_0_NAME);
 
-	//PRINT("gpio_callback entered\n");
+	
 	 config = hcsr04_local->config->config_info;
 		dev= hcsr04_local->driver_data;
 	int int_value;
@@ -101,7 +97,7 @@ void gpio_callback(struct device *port,
 	PRINT("gpio_callback value = %d............", int_value);
 	
 	if(int_value == 1)
-	{//PRINT("%d edge high interrupt triggered\n", config->irq_pin);
+	{
 		tsc1 = sys_cycle_get_32();	
 		
 	rc1 = gpio_pin_configure(port,config->irq_pin , (GPIO_DIR_IN | GPIO_INT | GPIO_INT_EDGE
@@ -113,7 +109,7 @@ void gpio_callback(struct device *port,
 	}
 
 	else
-	{//PRINT("%d edge low interrupt triggered\n", config->irq_pin);
+	{
 	rc1 = gpio_pin_configure(port,config->irq_pin , (GPIO_DIR_IN | GPIO_INT | GPIO_INT_EDGE
 	 | GPIO_INT_ACTIVE_HIGH| GPIO_INT_DEBOUNCE | GPIO_PUD_PULL_DOWN));
 
@@ -121,18 +117,17 @@ void gpio_callback(struct device *port,
 	PRINT("High GPIO config error %d!!\n", rc1);
 	}
 	  tsc2 = sys_cycle_get_32();	
-//PRINT("%d is tc1\n", tsc1);
-		//PRINT("%d clock cycles\n", tsc2-tsc1);
+
 		dev->per_dev_buffer = (HW_CYCLES_TO_USEC((tsc2)-(tsc1))*17)/1000 ;                     //400 * 58
-		//PRINT("distance = %d \n", dev->per_dev_buffer);
+		
 	dev->ongoing =0;
 	}
 	
 	
-	//device_sync_call_complete(&dev->sync);
+	
 	nano_isr_sem_give(&dev->nanofibre);
 	
-//PRINT("left interrupt\n");
+
 }
 
 
@@ -140,7 +135,7 @@ void gpio_callback(struct device *port,
 static inline int hcsr_dw_write(struct device *port, uint32_t pin)
 {
 	int rc1;
-	//PRINT("WRITE entered\n");
+	
 #if 0
 struct nano_timer timer;
 void *timer_data[1];
@@ -151,7 +146,7 @@ nano_timer_init(&timer, timer_data);
 	//PRINT("time  = %d \n",sys_clock_us_per_tick);
 	dev->per_dev_buffer =0;
 	
-	//if(dev->ongoing !=1)
+	
 	{
 	dev->ongoing =1;
 	rc1=gpio_pin_write(config->exp1,dev->trigger_pin, 1);
@@ -183,8 +178,7 @@ void *timer_data[1];
 nano_timer_init(&timer, timer_data);
 #endif
 
-	//PRINT("READ entered\n");
-	//PRINT("distance = %d \n", dev->per_dev_buffer);
+	
 	if(dev->per_dev_buffer == 0)
 	{	
 		if(dev->ongoing !=1)
@@ -193,9 +187,7 @@ nano_timer_init(&timer, timer_data);
 						
 			//device_sync_call_wait(&dev->sync);
 			
-		//}
-		//else
-		//{
+		
 		dev->ongoing =1;
 		rc1=gpio_pin_write(config->exp1,dev->trigger_pin, 1);
 			if (rc1 != 0) {
@@ -214,7 +206,7 @@ nano_timer_init(&timer, timer_data);
 					return -1;}
 		*value = dev->per_dev_buffer;			
 		}
-	//*value = dev->per_dev_buffer;
+	
 		
 	}
 
@@ -223,7 +215,7 @@ nano_timer_init(&timer, timer_data);
 	
 	nano_sem_init(&dev->nanofibre);
 	dev->per_dev_buffer=0;
-	//PRINT("read out\n");
+	
 	return 0;
 
 }
@@ -279,7 +271,7 @@ static struct device *int_pin_configure(struct device *port)
 	struct hcsr_dw_runtime * const dev = port->driver_data;
 PRINT("int_pin_configure  %d\n", config->irq_pin);
 	int_pin_1 = device_get_binding(CONFIG_GPIO_DW_0_NAME);
-	//spi_configure(spi, &spi_conf);
+	
 	if (!int_pin_1) 
 		{
 		PRINT("DW GPIO not found!!\n");
@@ -350,7 +342,7 @@ int hcsr_dw_initialize(struct device *port)
 		}
 		}
 	}
-	//port->driver_api = &api_funcs;
+	
 	config->exp1 = device_get_binding(CONFIG_GPIO_PCAL9535A_1_DEV_NAME);
 
 	if(!config->exp1) 
