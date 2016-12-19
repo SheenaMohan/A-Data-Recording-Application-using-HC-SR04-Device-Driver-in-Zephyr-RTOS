@@ -143,7 +143,6 @@ nano_timer_init(&timer, timer_data);
 #endif
 	struct hcsr_dw_config *config = port->config->config_info;
 	struct hcsr_dw_runtime * dev = port->driver_data;
-	//PRINT("time  = %d \n",sys_clock_us_per_tick);
 	dev->per_dev_buffer =0;
 	
 	
@@ -185,7 +184,7 @@ nano_timer_init(&timer, timer_data);
 		{
 			PRINT("ongoing meassurement\n");
 						
-			//device_sync_call_wait(&dev->sync);
+			
 			
 		
 		dev->ongoing =1;
@@ -253,7 +252,7 @@ int hcsr_dw_reset(struct device *port)
 
 
  struct hcsr04_driver_api api_funcs = {
-	//.config = hcsr_dw_config,
+	
 	.write = hcsr_dw_write,
 	.read = hcsr_dw_read,
 	.reset = hcsr_dw_reset,
@@ -311,7 +310,7 @@ PRINT("int_pin_configure  %d\n", config->irq_pin);
 int hcsr_dw_initialize(struct device *port)
 {
 	int ret;
-	PRINT("INIT2");
+	
 
 	struct hcsr_dw_config *config = port->config->config_info;
 	struct hcsr_dw_runtime * const dev = port->driver_data;
