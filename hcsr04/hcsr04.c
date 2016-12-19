@@ -136,11 +136,7 @@ static inline int hcsr_dw_write(struct device *port, uint32_t pin)
 {
 	int rc1;
 	
-#if 0
-struct nano_timer timer;
-void *timer_data[1];
-nano_timer_init(&timer, timer_data);
-#endif
+
 	struct hcsr_dw_config *config = port->config->config_info;
 	struct hcsr_dw_runtime * dev = port->driver_data;
 	dev->per_dev_buffer =0;
@@ -171,11 +167,7 @@ int hcsr_dw_read(struct device *port, uint32_t ticks, uint32_t *value)
 	struct hcsr_dw_config *config = port->config->config_info;
 	struct hcsr_dw_runtime * dev = port->driver_data;
 	int rc1;
-#if 0
-struct nano_timer timer;
-void *timer_data[1];
-nano_timer_init(&timer, timer_data);
-#endif
+
 
 	
 	if(dev->per_dev_buffer == 0)
